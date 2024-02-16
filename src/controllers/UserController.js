@@ -147,15 +147,38 @@ export const updateProfile = async (req, res) => {
       { new: true }
     );
 
-    res
-      .status(200)
-      .json({
-        message: "Profile updated successfully",
-        status: 200,
-        data: { user },
-      });
+    res.status(200).json({
+      message: "Profile updated successfully",
+      status: 200,
+      data: { user },
+    });
   } catch (error) {
     console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    const userId = req.userId;
+
+    const { new_password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
+
+    res
+      .status(200)
+      .json({ message: "Password updated successfully", status: 200 });
+  } catch (error) {
+    console.error("Error updating password:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

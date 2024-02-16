@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 import { User } from "../models/User.js";
+import bcrypt from "bcrypt";
 
 export const signupValidator = () => {
   return [
@@ -46,7 +47,7 @@ export const signupValidator = () => {
       .withMessage("Confirm password is required")
       .custom((value, { req }) => {
         if (value !== req.body.password) {
-          throw new Error("Passwords do not match");
+          return Promise.reject("Passwords do not match");
         }
         return true;
       }),
@@ -60,8 +61,7 @@ export const signinValidator = () => {
   ];
 };
 
-export const updateProfileValidator = (req) => {
-  console.log("req ", req);
+export const updateProfileValidator = () => {
   return [
     body("first_name")
       .notEmpty()
@@ -96,5 +96,37 @@ export const updateProfileValidator = (req) => {
         max: 15,
       })
       .withMessage("Username must be between 3 and 15 characters long"),
+  ];
+};
+
+export const updatePasswordValidator = () => {
+  return [
+    body("old_password")
+      .notEmpty()
+      .withMessage("Old password is required")
+      .custom(async (value, { req }) => {
+        const userId = req.userId;
+
+        const user = await User.findById(userId);
+
+        const isPasswordValid = await bcrypt.compare(value, user.password);
+        if (!isPasswordValid) {
+          return Promise.reject("Old password is incorrect");
+        }
+      }),
+    body("new_password")
+      .notEmpty()
+      .withMessage("New password is required")
+      .isLength({ min: 6 })
+      .withMessage("New password must be at least 6 characters long"),
+    body("confirm_password")
+      .notEmpty()
+      .withMessage("Confirm password is required")
+      .custom((value, { req }) => {
+        if (value !== req.body.new_password) {
+          return Promise.reject("Passwords do not match");
+        }
+        return true;
+      }),
   ];
 };
