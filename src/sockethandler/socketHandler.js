@@ -43,5 +43,16 @@ export const socketHandler = (io) => {
         io.to(inviterSocket?.socketId).emit("game:decline", decliner);
       }
     });
+
+    //game accept
+    socket.on("invite:accept", (inviter, invitedUser) => {
+      const inviterSocket = onlineUsers.find(
+        (user) => user.user.uuid === inviter.uuid
+      );
+
+      if (inviterSocket) {
+        io.to(inviterSocket?.socketId).emit("game:start", invitedUser);
+      }
+    });
   });
 };
