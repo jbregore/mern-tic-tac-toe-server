@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import AuthRoute from "./src/routes/AuthRoute.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
+import { socketHandler } from "./src/sockethandler/socketHandler.js";
 
 const app = express();
 const server = createServer(app);
@@ -25,7 +26,7 @@ mongoose
   .then(() => {
     console.log("App connected to the database");
 
-    io.on("connection", (socket) => {});
+    socketHandler(io);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
