@@ -1,9 +1,18 @@
 import express from "express";
 import cors from "cors";
-import { PORT, clientURL, mongoDbUrl, socketPORT } from "./src/utils/config.js";
+import {
+  MODE,
+  PATH_ROOT,
+  PORT,
+  clientURL,
+  mongoDbUrl,
+  socketPORT,
+} from "./src/utils/config.js";
 import mongoose from "mongoose";
+import fs from "fs";
 import { Server } from "socket.io";
-import { createServer } from "http";
+import { createServer as httpServer } from "http";
+import { createServer as httpsServer } from "https";
 import { socketHandler } from "./src/sockethandler/socketHandler.js";
 
 import AuthRoute from "./src/routes/AuthRoute.js";
@@ -11,13 +20,36 @@ import GameRoute from "./src/routes/GameRoute.js";
 import RankRoute from "./src/routes/RankRoute.js";
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: clientURL,
-  },
-});
-io.listen(socketPORT);
+
+let io = null;
+
+if (MODE === "production") {
+  const pathRoot = PATH_ROOT;
+  const options = {
+    key: fs.readFileSync(`${pathRoot}/${DOMAIN}.key`),
+    cert: fs.readFileSync(`${pathRoot}/${DOMAIN}.crt`),
+  };
+
+  const server = httpsServer(options, app);
+
+  io = new Server(server, {
+    cors: {
+      origin: clientURL,
+    },
+  });
+
+  server.listen(socketPORT);
+} else {
+  const server = httpServer(app);
+
+  io = new Server(server, {
+    cors: {
+      origin: clientURL,
+    },
+  });
+
+  server.listen(socketPORT);
+}
 
 app.use(cors());
 app.use(express.json());

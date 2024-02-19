@@ -54,7 +54,7 @@ export const signin = async (req, res) => {
 
     const { username, password } = req.body;
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username, status: "offline" });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
