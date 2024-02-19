@@ -42,7 +42,7 @@ export const index = async (req, res) => {
       };
     });
 
-    return res.json({
+    return res.status(200).json({
       data: formattedGames,
       meta: paginationMeta,
     });

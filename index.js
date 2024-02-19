@@ -2,11 +2,13 @@ import express from "express";
 import cors from "cors";
 import { PORT, mongoDbUrl } from "./src/utils/config.js";
 import mongoose from "mongoose";
-import AuthRoute from "./src/routes/AuthRoute.js";
-import GameRoute from "./src/routes/GameRoute.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { socketHandler } from "./src/sockethandler/socketHandler.js";
+
+import AuthRoute from "./src/routes/AuthRoute.js";
+import GameRoute from "./src/routes/GameRoute.js";
+import RankRoute from "./src/routes/RankRoute.js";
 
 const app = express();
 const server = createServer(app);
@@ -23,6 +25,8 @@ app.use(express.json());
 app.use("/api/auth", AuthRoute);
 
 app.use("/api/games", GameRoute);
+
+app.use("/api/rankings", RankRoute);
 
 mongoose
   .connect(mongoDbUrl)
