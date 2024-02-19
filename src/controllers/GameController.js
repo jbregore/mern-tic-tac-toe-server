@@ -35,6 +35,7 @@ export const index = async (req, res) => {
     const formattedGames = games.map((game) => {
       const createdAt = new Date(game.createdAt);
       const formattedDate = createdAt.toLocaleString("en-US", {
+        timeZone: "Asia/Manila",
         month: "2-digit",
         day: "2-digit",
         year: "numeric",
