@@ -5,9 +5,25 @@ export const index = async (req, res) => {
   try {
     const userId = req.userId;
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+
+    const totalGames = await Game.countDocuments({ user: userId });
+    const totalPages = Math.ceil(totalGames / limit);
+    const skip = (page - 1) * limit;
+    const nextPage = page < totalPages ? page + 1 : null;
+    const lastPage = totalPages;
+    const paginationMeta = {
+      totalRecords: totalGames,
+      nextPage: nextPage,
+      lastPage: lastPage,
+    };
+
     const games = await Game.find({ user: userId })
       .populate("opponent", "first_name last_name")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const formattedGames = games.map((game) => {
       const createdAt = new Date(game.createdAt);
@@ -26,7 +42,10 @@ export const index = async (req, res) => {
       };
     });
 
-    return res.json(formattedGames);
+    return res.json({
+      data: formattedGames,
+      meta: paginationMeta,
+    });
   } catch (error) {
     console.error("Error fetching games:", error);
     return res.status(500).json({ message: "Internal server error" });

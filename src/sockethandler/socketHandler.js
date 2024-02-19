@@ -145,11 +145,7 @@ export const socketHandler = (io) => {
         game.agreedPlayers
       );
 
-      if (
-        !isContinue &&
-        !allPlayersInGameAgreed &&
-        game.agreedPlayersCount == 2
-      ) {
+      if (!isContinue && !allPlayersInGameAgreed) {
         io.to(userSocket?.socketId).emit("cancel:new_match");
         io.to(opponentSocket?.socketId).emit("cancel:new_match", user);
         game.agreedPlayers = [];
