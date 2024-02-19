@@ -1,6 +1,3 @@
-import { Game } from "../models/Game.js";
-import { User } from "../models/User.js";
-
 export const socketHandler = (io) => {
   let onlineUsers = [];
   let game = {

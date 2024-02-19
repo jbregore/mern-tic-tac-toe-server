@@ -4,11 +4,18 @@ import { User } from "../models/User.js";
 export const index = async (req, res) => {
   try {
     const userId = req.userId;
+    const opponentId = req.query.opponent_id;
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
 
-    const totalGames = await Game.countDocuments({ user: userId });
+    let query = { user: userId };
+
+    if (opponentId) {
+      query.opponent = opponentId;
+    }
+
+    const totalGames = await Game.countDocuments(query);
     const totalPages = Math.ceil(totalGames / limit);
     const skip = (page - 1) * limit;
     const nextPage = page < totalPages ? page + 1 : null;
@@ -19,7 +26,7 @@ export const index = async (req, res) => {
       lastPage: lastPage,
     };
 
-    const games = await Game.find({ user: userId })
+    const games = await Game.find(query)
       .populate("opponent", "first_name last_name")
       .sort({ createdAt: -1 })
       .skip(skip)
