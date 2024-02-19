@@ -52,7 +52,6 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.toJSON = function () {
   var obj = this.toObject();
 
-  delete obj._id;
   delete obj.password;
   delete obj.createdAt;
   delete obj.updatedAt;

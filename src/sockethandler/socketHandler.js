@@ -1,3 +1,4 @@
+import { Game } from "../models/Game.js";
 import { User } from "../models/User.js";
 
 export const socketHandler = (io) => {
@@ -14,7 +15,6 @@ export const socketHandler = (io) => {
         onlineUsers.push({ user: newUser, socketId: socket.id });
         game.players.push(newUser.uuid);
       }
-      // console.log("socketId ", socket.id);
       io.emit("get-users", onlineUsers);
     });
 
@@ -74,10 +74,6 @@ export const socketHandler = (io) => {
 
     //gameplay
     socket.on("gameplay", (turn, me, opponent, boardData) => {
-      // console.log("turn ", turn);
-      // console.log("me ", me);
-      // console.log("opponent ", opponent);
-      // console.log("boardData ", boardData);
       const opponentSocket = onlineUsers.find(
         (user) => user.user.uuid === opponent.uuid
       );
@@ -93,9 +89,8 @@ export const socketHandler = (io) => {
       }
     });
 
-    socket.on("gameplay:finished", (hasWinner, winner, loser) => {
+    socket.on("gameplay:finished", async (hasWinner, winner, loser) => {
       if (hasWinner) {
-        //insert data to the database
         const winnerSocket = onlineUsers.find(
           (user) => user.user.uuid === winner.uuid
         );
@@ -112,8 +107,6 @@ export const socketHandler = (io) => {
 
         io.to(loserSocket?.socketId).emit("gameplay:done", "You lose.", false);
       } else {
-        //insert data to the database
-
         const winnerSocket = onlineUsers.find(
           (user) => user.user.uuid === winner.uuid
         );
@@ -180,11 +173,11 @@ export const socketHandler = (io) => {
   });
 };
 
-function checkPlayersAgreed(playersInGameUUIDs, playersWhoAgreed) {
+const checkPlayersAgreed = (playersInGameUUIDs, playersWhoAgreed) => {
   const allPlayersInGame =
     playersWhoAgreed.every((player) =>
       playersInGameUUIDs.includes(player.uuid)
     ) && playersWhoAgreed.length === 2;
 
   return allPlayersInGame;
-}
+};

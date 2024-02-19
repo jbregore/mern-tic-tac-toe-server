@@ -3,6 +3,7 @@ import cors from "cors";
 import { PORT, mongoDbUrl } from "./src/utils/config.js";
 import mongoose from "mongoose";
 import AuthRoute from "./src/routes/AuthRoute.js";
+import GameRoute from "./src/routes/GameRoute.js";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { socketHandler } from "./src/sockethandler/socketHandler.js";
@@ -20,6 +21,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", AuthRoute);
+
+app.use("/api/games", GameRoute);
 
 mongoose
   .connect(mongoDbUrl)
