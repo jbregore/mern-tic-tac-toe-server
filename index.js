@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import {
+  DOMAIN,
   MODE,
   PATH_ROOT,
   PORT,
